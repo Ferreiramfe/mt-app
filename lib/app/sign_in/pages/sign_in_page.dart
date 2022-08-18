@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mt_app/app/sign_in/service/signin_service.dart';
-import 'package:mt_app/app/sign_up/enum/user_type_enum.dart';
 import 'package:mt_app/app/sign_up/model/user_entity.dart';
 import '../../../shared/models/user_model.dart';
-import '../../sign_up/pages/signup_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key key}) : super(key: key);
@@ -69,10 +67,10 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
 
     switch(userModel.type){
       case 'STUDENT' :
-        Navigator.pushReplacementNamed(context, "/painel-motorista");
-        break;
-      case 'STUDENT' :
         Navigator.pushReplacementNamed(context, "/student_panel");
+        break;
+      case 'PERSONAL_TRAINER' :
+        Navigator.pushReplacementNamed(context, "/personal_trainer_panel");
         break;
     }
 
@@ -125,13 +123,12 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 16, bottom: 10),
-                  child: RaisedButton(
+                  child: ElevatedButton(
                       child: Text(
                         "Entrar",
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
-                      color: Color(0xff1ebbd8),
-                      padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                      style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
                       onPressed: () {
                         _validarCampos();
                       }),

@@ -1,45 +1,29 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mt_app/shared/models/students_model.dart';
-import 'package:mt_app/shared/models/user_model.dart';
 import 'package:mt_app/shared/services/student_service.dart';
-import 'package:mt_app/shared/services/user_services.dart';
 
-class StudentHome extends StatefulWidget {
-  const StudentHome({Key key}) : super(key: key);
+class PersonalTrainerHomePage extends StatefulWidget {
+  const PersonalTrainerHomePage({Key key}) : super(key: key);
 
   @override
-  State<StudentHome> createState() => _StudentHomeState();
+  State<PersonalTrainerHomePage> createState() => _PersonalTrainerHomePageState();
 }
 
-class _StudentHomeState extends State<StudentHome> {
-  User _user;
+class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
   String _uid;
-  bool _loading = false;
-  UserServices userServices = UserServices();
-  Future<List<UserModel>> _getPersonalTrainers(String type) async {
-    List<UserModel> result = await userServices.getUsersByType(type);
-    result.removeWhere((user) => user.id == _uid);
+  StudentService studentService = StudentService();
+
+  Future<List<StudentModel>> _getStudents(String trainerId) async {
+    List<StudentModel> result = await studentService.getStudentsFromTrainerId(trainerId);
     return result;
   }
 
   getUserData() async {
     FirebaseAuth auth = FirebaseAuth.instance;
-    _user = await auth.currentUser;
-    _uid = _user.uid;
-  }
-
-  _contractService(UserModel user) async {
-    try {
-      _loading = true;
-      StudentService studentService = StudentService();
-      StudentModel studentModel = StudentModel(id: _uid, status: 'ACTIVE', trainerId: user.id, createdAt: Timestamp.now());
-      await studentService.contractPersnal(studentModel);
-      _loading = false;
-    } catch (error) {
-      _loading = false;
-    }
+    User user = await auth.currentUser;
+    _uid = user.uid;
+    _getStudents(_uid);
   }
 
   @override
@@ -48,7 +32,7 @@ class _StudentHomeState extends State<StudentHome> {
     getUserData();
   }
 
-  Widget _personalTrainerCard({UserModel user}) {
+  Widget _personalTrainerCard({StudentModel student}) {
     return Card(
       child: Padding(
         padding: EdgeInsets.only(top: 8, left: 16.0, right: 16.0, bottom: 8.0),
@@ -70,7 +54,7 @@ class _StudentHomeState extends State<StudentHome> {
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Text(user.name), Text(user.email)],
+                  children: [Text(student.user.name), Text(student.user.email)],
                 )
               ],
             ),
@@ -80,13 +64,17 @@ class _StudentHomeState extends State<StudentHome> {
                 Text('Mensalidade'),
                 ElevatedButton(
                     child: Text(
-                      "Contratar",
+                      "Detalhes",
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                     style: ElevatedButton.styleFrom(
                         textStyle: const TextStyle(fontSize: 20)),
                     onPressed: () {
-                      _contractService(user);
+                      Navigator.pushNamed(
+                          context,
+                          "/student_details",
+                          arguments: student
+                      );
                     }),
               ],
             ),
@@ -98,14 +86,14 @@ class _StudentHomeState extends State<StudentHome> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<UserModel>>(
-        future: _getPersonalTrainers('PERSONAL_TRAINER'),
+    return FutureBuilder<List<StudentModel>>(
+        future: _getStudents(_uid),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
               return Scaffold(
-                appBar: AppBar(title: Text('Tela Inicial')),
+                appBar: AppBar(title: Text('Alunos')),
                 body: Center(
                   child: Column(
                     children: <Widget>[
@@ -120,16 +108,16 @@ class _StudentHomeState extends State<StudentHome> {
             case ConnectionState.done:
               return Scaffold(
                 appBar: AppBar(
-                  title: Text('Tela Inicial'),
+                  title: Text('Alunos'),
                 ),
                 body: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (_, index) {
-                        List<UserModel> itens = snapshot.data;
-                        UserModel user = itens[index];
-                        return _personalTrainerCard(user: user);
+                        List<StudentModel> itens = snapshot.data;
+                        StudentModel user = itens[index];
+                        return _personalTrainerCard(student: user);
                       }),
                 ),
               );

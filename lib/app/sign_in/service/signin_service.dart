@@ -16,14 +16,14 @@ class SignInService {
         .signInWithEmailAndPassword(email: user.email, password: user.password)
         .then((firebaseUser) => firebaseUser.user.uid)
         .catchError((error) =>
-            "Erro ao autenticar usuário, verifique e-mail e senha e tente novamente!");
+            "Erro ao autenticar usuário, verifique e-mail e senha e tente novamente!"
+    );
   }
 
   Future<UserModel> getUser(String userId) async {
     final user = await usersRef.doc(userId).get();
-    if (user.exists) {
-      final Map data = user.data();
-      return UserModel(data);
+    if (user != null) {
+      return UserModel.fromFirestore(user);
     }
   }
 }

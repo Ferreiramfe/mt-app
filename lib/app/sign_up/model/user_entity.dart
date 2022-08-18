@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mt_app/app/sign_up/enum/user_type_enum.dart';
 
 class UserEntity {
@@ -6,6 +7,7 @@ class UserEntity {
   String _email;
   String _password;
   String _type;
+  Timestamp _timestamp;
 
   UserEntity();
 
@@ -15,6 +17,7 @@ class UserEntity {
       "name"        : this.name,
       "email"       : this.email,
       "type"        : this.type,
+      "timestamp"   : this._timestamp
     };
     return map;
 
@@ -47,5 +50,11 @@ class UserEntity {
 
   set type(String value) {
     _type = value;
+  }
+
+  Timestamp get timestamp => _timestamp;
+
+  set timestamp(Timestamp value) {
+    _timestamp = value;
   }
 }

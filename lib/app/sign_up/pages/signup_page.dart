@@ -155,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                           onChanged: (bool value){
                             setState(() {
                               _userTypeFlag = value;
-                              _userType = value ? 'STUDENT' : 'PERSONAL_TRAINER';
+                              _userType = !value ? 'STUDENT' : 'PERSONAL_TRAINER';
                             });
                           }
                       ),
