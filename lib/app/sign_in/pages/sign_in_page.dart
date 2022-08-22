@@ -101,21 +101,17 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: EdgeInsets.all(16),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 16.0),
-                    child: Center(
-                        child: SvgPicture.asset('lib/shared/assets/logo.svg', color: const Color(0xffd50032))),
-                  ),
+                  Center(
+                      child: SvgPicture.asset('lib/shared/assets/logo.svg', color: const Color(0xffd50032))),
                   _inputTextForm(
                       controller: _controllerEmail,
                       hintText: 'E-mail',

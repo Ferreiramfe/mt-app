@@ -210,11 +210,11 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _personalTrainerCard(widget.student),
+                          _exerciseOfTheDay != null ? _exerciseOfTheDayWidget(_exerciseOfTheDay, true) : Center(),
                           _exercises != null && _exercises.length > 0
                           ? Expanded(
                             child: Column(
                               children: [
-                                _exerciseOfTheDay != null ? _exerciseOfTheDayWidget(_exerciseOfTheDay, true) : Center(),
                                 Expanded(
                                   child: ListView.builder(
                                       itemCount: _exercises.length,

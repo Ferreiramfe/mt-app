@@ -189,6 +189,11 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
             Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text('Exercício ${index + 1}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                      )),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
