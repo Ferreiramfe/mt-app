@@ -1,10 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mt_app/shared/models/exercise_plans_model.dart';
 import 'package:mt_app/shared/models/students_model.dart';
 import 'package:mt_app/shared/services/exercise_plans_services.dart';
 import 'package:intl/intl.dart';
-
-import '../../../../shared/models/exercise_model.dart';
 
 class StudentDetailsPage extends StatefulWidget {
   StudentModel student;
@@ -15,9 +14,11 @@ class StudentDetailsPage extends StatefulWidget {
 }
 
 class _StudentDetailsPageState extends State<StudentDetailsPage> {
-  TextEditingController _searchController = TextEditingController();
   ExercisePlansModel _exerciseOfTheDay;
   List<ExercisePlansModel> _exercises;
+  bool _loadingUser = false;
+  User _user;
+  String _uid;
   var _days = {
     'SUNDAY': 'DOMINGO',
     'MONDAY': 'SEGUNDA',
@@ -115,10 +116,14 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: CircleAvatar(
-                    maxRadius: 70,
-                    backgroundColor: const Color(0xffd50032),
-                    child: Text('${student.user.firstName[0]}${student.user.lastName[0]}',
-                      style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.white),),
+                      maxRadius: 70,
+                      backgroundColor: const Color(0xffd50032),
+                      backgroundImage: widget.student.imageRef == null
+                          ? null
+                          : NetworkImage(widget.student.imageRef),
+                      child: widget.student.imageRef == null ? Text('${student.user.firstName[0]}${student.user.lastName[0]}',
+                          style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.white))
+                          : null
                   ),
                 ),
               ],
@@ -142,20 +147,39 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
     );
   }
 
+  getUserData() async {
+    setState(() {
+      _loadingUser = true;
+    });
+    FirebaseAuth auth = FirebaseAuth.instance;
+    _user = await auth.currentUser;
+    setState(() {
+      _uid = _user.uid;
+      _loadingUser = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUserData();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhes do aluno'),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _uid != widget.student.user.id ? FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/student_exercise_form',
               arguments: widget.student);
         },
         backgroundColor:const Color(0xffd50032),
         child: const Icon(Icons.add),
-      ),
+      ) : null,
       body: Column(
         children: [
           FutureBuilder<List<ExercisePlansModel>>(

@@ -15,4 +15,9 @@ class UserServices {
         .get();
     return res.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
   }
+
+  Future<UserModel> getUser(String userId) async {
+    var res = await usersRef.doc(userId).get();
+    return UserModel.fromFirestore(res);
+  }
 }

@@ -62,4 +62,14 @@ class TrainerService {
     return trainerModel;
   }
 
+  Future<void> updateTrainer(TrainerModel trainer) async {
+    await trainersRef.doc(trainer.id).set(trainer.toMap());
+    DocumentReference userRef =
+    FirebaseFirestore.instance.doc(trainer.userRef);
+    await userRef.update({
+      'firstName': trainer.user.firstName,
+      'lastName': trainer.user.lastName
+    });
+  }
+
 }

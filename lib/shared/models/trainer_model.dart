@@ -7,17 +7,31 @@ class TrainerModel {
   Timestamp createdAt;
   String status;
   UserModel user;
+  String description;
+  String imageRef;
+  String value;
 
-  TrainerModel({this.id, this.userRef, this.createdAt, this.status, this.user});
+  TrainerModel(
+      {this.id,
+      this.userRef,
+      this.createdAt,
+      this.status,
+      this.user,
+      this.description,
+      this.imageRef,
+      this.value});
 
   factory TrainerModel.fromFirestore(DocumentSnapshot doc, UserModel user) {
     Map data = doc.data();
     return TrainerModel(
-        id: doc.id,
-        userRef: data['userRef'],
-        createdAt: data['createdAt'],
-        status: data['status'],
-        user: user
+      id: doc.id,
+      userRef: data['userRef'],
+      createdAt: data['createdAt'],
+      status: data['status'],
+      user: user,
+      description: data['description'],
+      imageRef: data['imageRef'],
+      value: data['value'],
     );
   }
   Map<String, dynamic> toMap() {
@@ -26,6 +40,9 @@ class TrainerModel {
       "userRef": this.userRef,
       "createdAt": this.createdAt,
       "status": this.status,
+      "description": this.description,
+      "imageRef": this.imageRef,
+      "value": this.value,
     };
     return map;
   }

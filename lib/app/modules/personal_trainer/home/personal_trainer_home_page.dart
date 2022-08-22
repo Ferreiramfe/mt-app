@@ -23,6 +23,7 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
   TrainerModel _trainer;
   List<StudentModel> _students;
   List<StudentModel> _filteredStudents;
+  bool _loadingUser = true;
 
   getUserData() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -31,6 +32,7 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
     await trainerService.getTrainerById(_uid).then((value) {
       setState(() {
         _trainer = value;
+        _loadingUser = false;
       });
     });
   }
@@ -59,13 +61,14 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                       child: CircleAvatar(
                         maxRadius: 50,
                         backgroundColor: const Color(0xffd50032),
-                        child: Text(
+                        backgroundImage: student.imageRef != null ? NetworkImage(student.imageRef) : null,
+                        child: student.imageRef == null ? Text(
                           '${student.user.firstName[0]}${student.user.lastName[0]}',
                           style: TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
                               color: Colors.white),
-                        ),
+                        ) : null,
                       ),
                     ),
                   ],
@@ -211,7 +214,86 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
       appBar: AppBar(
         title: const Text('Alunos'),
       ),
-      drawer: Drawer(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xffd50032),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _loadingUser != true
+                      ? Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.white,
+                        backgroundImage: _trainer.imageRef != null ? NetworkImage(_trainer.imageRef) : null,
+                        child: _trainer.imageRef == null ? Text('${_trainer.user.firstName[0]}${_trainer.user.lastName[0]}', style: TextStyle(color: Color(0xffd50032), fontSize: 40, fontWeight: FontWeight.bold))
+                            : null,
+                      ),
+                      Text('${_trainer.user.firstName} ${_trainer.user.lastName[0]}', style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white
+                      ))
+                    ],
+                  )
+                      : CircularProgressIndicator(),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                Column(
+                  children: [
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.home_filled),
+                          Text('Inicio')
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/student_panel');
+                      },
+                    ),
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.settings),
+                          Text('Configurações')
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/trainer_config', arguments: _trainer);
+                      },
+                    ),
+                  ],
+                ),
+                ListTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(Icons.logout),
+                      Text('Sair')
+                    ],
+                  ),
+                  onTap: () async {
+                    Navigator.pushReplacementNamed(context, "/");
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: Column(
         children: [
           _inputTextForm(

@@ -9,8 +9,9 @@ class StudentModel {
   Timestamp createdAt;
   String status;
   UserModel user;
+  String imageRef;
 
-  StudentModel({this.id, this.userRef, this.trainerId, this.createdAt, this.status, this.user});
+  StudentModel({this.id, this.userRef, this.trainerId, this.createdAt, this.status, this.user, this.imageRef});
 
   factory StudentModel.fromFirestore(DocumentSnapshot doc, UserModel user) {
     Map data = doc.data();
@@ -20,7 +21,8 @@ class StudentModel {
         trainerId: data['trainerId'],
         createdAt: data['createdAt'],
         status: data['status'],
-        user: user
+        user: user,
+        imageRef: data['imageRef']
     );
   }
   Map<String, dynamic> toMap() {
@@ -30,6 +32,7 @@ class StudentModel {
       "trainerId": this.trainerId,
       "createdAt": this.createdAt,
       "status": this.status,
+      "imageRef": this.imageRef
     };
     return map;
   }

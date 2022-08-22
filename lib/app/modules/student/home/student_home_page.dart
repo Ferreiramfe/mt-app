@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mt_app/shared/models/exercise_plans_model.dart';
 import 'package:mt_app/shared/models/students_model.dart';
 import 'package:mt_app/shared/models/trainer_model.dart';
+import 'package:mt_app/shared/services/exercise_plans_services.dart';
 import 'package:mt_app/shared/services/student_service.dart';
 import 'package:mt_app/shared/services/trainer_service.dart';
 import 'package:mt_app/shared/services/user_services.dart';
@@ -23,17 +25,22 @@ class _StudentHomeState extends State<StudentHome> {
   String _uid;
   bool _loading = false;
   bool _loadingMyTrainer = false;
+  bool _loadingUser = false;
   UserServices userServices = UserServices();
   TrainerService trainerService = TrainerService();
   StudentService studentService = StudentService();
 
   getUserData() async {
+    setState(() {
+      _loadingUser = true;
+    });
     FirebaseAuth auth = FirebaseAuth.instance;
     _user = await auth.currentUser;
     _uid = _user.uid;
     await studentService.getStudentById(_uid).then((value) {
       setState(() {
         _student = value;
+        _loadingUser = false;
       });
     });
   }
@@ -132,17 +139,16 @@ class _StudentHomeState extends State<StudentHome> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: const EdgeInsets.only(right: 32.0),
                   child: CircleAvatar(
-                    maxRadius: 50,
-                    backgroundColor: Colors.deepOrangeAccent,
-                    child: Text(
-                      '${trainer.user.firstName[0]}${trainer.user.lastName[0]}',
-                      style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
+                      maxRadius: 40,
+                      backgroundColor: const Color(0xffd50032),
+                      backgroundImage: trainer.imageRef == null
+                          ? null
+                          : NetworkImage(trainer.imageRef),
+                      child: trainer.imageRef == null ? Text('${trainer.user.firstName[0]}${trainer.user.lastName[0]}',
+                          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white))
+                          : null
                   ),
                 ),
                 Column(
@@ -177,7 +183,7 @@ class _StudentHomeState extends State<StudentHome> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text('R\$ 31212',
+                          Text(trainer.value == null ? 'Valor' : 'R\$ ${trainer.value}',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
@@ -190,31 +196,31 @@ class _StudentHomeState extends State<StudentHome> {
                 ),
                 Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ElevatedButton(
-                          onPressed: () {},
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(top: 16.0, bottom: 16.0),
-                            child: Text('Detalhes',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                    fontSize: 16)),
-                          ),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange.withAlpha(0)),
-                              shadowColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange.withAlpha(0)),
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
-                                      side: BorderSide(
-                                          color: const Color(0xffd50032)))))),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(right: 8.0),
+                    //   child: ElevatedButton(
+                    //       onPressed: () {},
+                    //       child: Padding(
+                    //         padding:
+                    //             const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                    //         child: Text('Detalhes',
+                    //             style: TextStyle(
+                    //                 fontWeight: FontWeight.bold,
+                    //                 color: Colors.black87,
+                    //                 fontSize: 16)),
+                    //       ),
+                    //       style: ButtonStyle(
+                    //           backgroundColor: MaterialStateProperty.all<Color>(
+                    //               Colors.deepOrange.withAlpha(0)),
+                    //           shadowColor: MaterialStateProperty.all<Color>(
+                    //               Colors.deepOrange.withAlpha(0)),
+                    //           shape: MaterialStateProperty.all<
+                    //                   RoundedRectangleBorder>(
+                    //               RoundedRectangleBorder(
+                    //                   borderRadius: BorderRadius.circular(18.0),
+                    //                   side: BorderSide(
+                    //                       color: const Color(0xffd50032)))))),
+                    // ),
                     _loading == false
                     ? ElevatedButton(
                         onPressed: () {
@@ -266,17 +272,16 @@ class _StudentHomeState extends State<StudentHome> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: const EdgeInsets.only(right: 32.0),
                   child: CircleAvatar(
-                    maxRadius: 50,
-                    backgroundColor: Colors.deepOrangeAccent,
-                    child: Text(
-                      '${trainer.user.firstName[0]}${trainer.user.lastName[0]}',
-                      style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
+                      maxRadius: 40,
+                      backgroundColor: const Color(0xffd50032),
+                      backgroundImage: trainer.imageRef == null
+                          ? null
+                          : NetworkImage(trainer.imageRef),
+                      child: trainer.imageRef == null ? Text('${trainer.user.firstName[0]}${trainer.user.lastName[0]}',
+                          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white))
+                          : null
                   ),
                 ),
                 Column(
@@ -311,7 +316,7 @@ class _StudentHomeState extends State<StudentHome> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text('R\$ 31212',
+                          Text(trainer.value == null ? 'Valor' : 'R\$ ${trainer.value}',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
@@ -324,31 +329,31 @@ class _StudentHomeState extends State<StudentHome> {
                 ),
                 Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ElevatedButton(
-                          onPressed: () {},
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(top: 16.0, bottom: 16.0),
-                            child: Text('Detalhes',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                    fontSize: 16)),
-                          ),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange.withAlpha(0)),
-                              shadowColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange.withAlpha(0)),
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
-                                      side: BorderSide(
-                                          color: Colors.deepOrange))))),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(right: 8.0),
+                    //   child: ElevatedButton(
+                    //       onPressed: () {},
+                    //       child: Padding(
+                    //         padding:
+                    //             const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                    //         child: Text('Detalhes',
+                    //             style: TextStyle(
+                    //                 fontWeight: FontWeight.bold,
+                    //                 color: Colors.black87,
+                    //                 fontSize: 16)),
+                    //       ),
+                    //       style: ButtonStyle(
+                    //           backgroundColor: MaterialStateProperty.all<Color>(
+                    //               Colors.deepOrange.withAlpha(0)),
+                    //           shadowColor: MaterialStateProperty.all<Color>(
+                    //               Colors.deepOrange.withAlpha(0)),
+                    //           shape: MaterialStateProperty.all<
+                    //                   RoundedRectangleBorder>(
+                    //               RoundedRectangleBorder(
+                    //                   borderRadius: BorderRadius.circular(18.0),
+                    //                   side: BorderSide(
+                    //                       color: const Color(0xffd50032)))))),
+                    // ),
                     _loadingMyTrainer == false
                     ? ElevatedButton(
                         onPressed: () {
@@ -414,9 +419,100 @@ class _StudentHomeState extends State<StudentHome> {
       appBar: AppBar(
         title: const Text('Instrutores'),
       ),
-      drawer: Drawer(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _loadingUser != true
+                  ? Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.white,
+                        backgroundImage: _student.imageRef != null ? NetworkImage(_student.imageRef) : null,
+                        child: _student.imageRef == null ? Text('${_student.user.firstName[0]}${_student.user.lastName[0]}', style: TextStyle(color: Color(0xffd50032), fontSize: 40, fontWeight: FontWeight.bold))
+                          : null,
+                      ),
+                      Text('${_student.user.firstName} ${_student.user.lastName[0]}', style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white
+                      ))
+                    ],
+                  )
+                  : CircularProgressIndicator(),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                Column(
+                  children: [
+                    ListTile(
+                      title: Row(
+                        children: [
+                          Icon(Icons.home_filled),
+                          Text('Inicio')
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/student_panel');
+                      },
+                    ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.fitness_center),
+                        Text('Treinos')
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/student_details', arguments: _student);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.settings),
+                        Text('Configurações')
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/student_config', arguments: _student);
+                    },
+                  ),
+                  ],
+                ),
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.logout),
+                      Text('Sair')
+                    ],
+                  ),
+                  onTap: () async {
+                    Navigator.pushReplacementNamed(context, "/");
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: Column(
         children: [
+          _inputTextForm(
+              controller: _searchController,
+              hintText: 'Pesquisar',
+              autoFocus: false),
           StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: _streamTrainers(),
               builder: (builder, snapshot) {

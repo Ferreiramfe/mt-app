@@ -46,9 +46,23 @@ class StudentService {
     StudentModel student;
 
     for (var doc in query.docs) {
-      student = StudentModel.fromFirestore(doc, UserModel());
+      Map data = doc.data();
+      DocumentReference ref = await FirebaseFirestore.instance
+          .doc(data['userRef']);
+      UserModel user = UserModel.fromFirestore(await ref.get());
+      student = StudentModel.fromFirestore(doc, user);
     }
     return student;
+  }
+
+  Future<void> updateStudent(StudentModel student) async {
+    await studentsRef.doc(student.id).set(student.toMap());
+    DocumentReference userRef =
+      FirebaseFirestore.instance.doc(student.userRef);
+    await userRef.update({
+      'firstName': student.user.firstName,
+      'lastName': student.user.lastName
+    });
   }
 
   Future<List<StudentModel>> studentModels(var docs) async {
