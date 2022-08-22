@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1082487193394",
+    "firebase_url": "https://mt-tcc-default-rtdb.firebaseio.com",
+    "project_id": "mt-tcc",
+    "storage_bucket": "mt-tcc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082487193394:android:8cdebab2a6ae23d77a212b",
+        "android_client_info": {
+          "package_name": "matheusferreira.meutreino.com.mt_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1082487193394-toga67ga5910ctsobafkemq4sma2re2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkgtjxEhrgZMrwxB0SDU8iBzmmQh05ctg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082487193394-toga67ga5910ctsobafkemq4sma2re2u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
