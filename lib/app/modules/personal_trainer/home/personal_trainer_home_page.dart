@@ -191,7 +191,9 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _streamStudents() {
-    return studentService.streamStudents(_trainer.id);
+    if (_trainer != null) {
+      return studentService.streamStudents(_trainer.id);
+    }
   }
 
   _buildStudentModel(var data) {

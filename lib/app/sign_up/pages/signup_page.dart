@@ -17,6 +17,7 @@ class _SignupPageState extends State<SignupPage> {
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerPassword = TextEditingController();
   String _selectedUserType;
+  bool _obscure = true;
 
   _signupUser() {
     try {
@@ -56,6 +57,7 @@ class _SignupPageState extends State<SignupPage> {
     TextEditingController controller,
     String hintText,
     bool autoFocus,
+    bool obscure
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -68,6 +70,14 @@ class _SignupPageState extends State<SignupPage> {
             contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
             hintText: hintText,
             labelText: hintText,
+            suffixIcon: obscure ?
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscure = !_obscure;
+                  });
+                },
+                icon: Icon(Icons.remove_red_eye, color: const Color(0xffd50032))) : null,
             filled: true,
             fillColor: Colors.white,
             hintStyle: TextStyle(
@@ -104,19 +114,23 @@ class _SignupPageState extends State<SignupPage> {
                   _inputTextForm(
                       controller: _controllerFirstName,
                       hintText: 'Primeiro Nome',
-                      autoFocus: true),
+                      autoFocus: true,
+                      obscure: false),
                   _inputTextForm(
                       controller: _controllerLastName,
                       hintText: 'Último Nome',
-                      autoFocus: true),
+                      autoFocus: true,
+                      obscure: false),
                   _inputTextForm(
                       controller: _controllerEmail,
                       hintText: 'E-Mail',
-                      autoFocus: true),
+                      autoFocus: true,
+                      obscure: false),
                   _inputTextForm(
                       controller: _controllerPassword,
                       hintText: 'Senha',
-                      autoFocus: true),
+                      autoFocus: true,
+                      obscure: true),
                   Padding(
                       padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
                       child: DropdownButtonFormField(

@@ -18,6 +18,7 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
   String _errorMessage = "";
   bool _loading = false;
   SignInService service = SignInService();
+  bool _obscure = true;
 
   _signUser() {
     try {
@@ -57,6 +58,7 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
     TextEditingController controller,
     String hintText,
     bool autoFocus,
+    bool obscure
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -65,10 +67,19 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
         controller: controller,
         keyboardType: TextInputType.text,
         style: TextStyle(fontSize: 20),
+        obscureText: obscure ? _obscure : false,
         decoration: InputDecoration(
             contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
             hintText: hintText,
             labelText: hintText,
+            suffixIcon: obscure ?
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscure = !_obscure;
+                  });
+                },
+                icon: Icon(Icons.remove_red_eye, color: const Color(0xffd50032))) : null,
             filled: true,
             fillColor: Colors.white,
             hintStyle: TextStyle(color: Colors.black),
@@ -108,11 +119,15 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
                   _inputTextForm(
                       controller: _controllerEmail,
                       hintText: 'E-mail',
-                      autoFocus: true),
+                      autoFocus: true,
+                      obscure: false
+                  ),
                   _inputTextForm(
                       controller: _controllerPassword,
                       hintText: 'Senha',
-                      autoFocus: true),
+                      autoFocus: true,
+                      obscure: true
+                  ),
                   Padding(
                     padding: EdgeInsets.only(top: 16, bottom: 10),
                     child: ElevatedButton(
