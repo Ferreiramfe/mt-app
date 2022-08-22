@@ -234,9 +234,6 @@ class _TrainerConfigPageState extends State<TrainerConfigPage> {
       if (_controllerValue.text.isNotEmpty) {
         trainerModel.value = _controllerValue.text;
       }
-
-      trainerModel.description = _controllerDescription.text;
-      trainerModel.value = _controllerValue.text;
       await trainerService.updateTrainer(widget.trainer);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

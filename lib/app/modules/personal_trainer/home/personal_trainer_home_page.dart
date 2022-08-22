@@ -28,13 +28,24 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
   getUserData() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User user = await auth.currentUser;
-    _uid = user.uid;
-    await trainerService.getTrainerById(_uid).then((value) {
-      setState(() {
-        _trainer = value;
-        _loadingUser = false;
+    if (user != null) {
+      _uid = user.uid;
+      await trainerService.getTrainerById(_uid).then((value) {
+        setState(() {
+          _trainer = value;
+          _loadingUser = false;
+        });
       });
-    });
+    }
+  }
+
+  @override
+  void dispose() {
+    _uid;
+    _students;
+    _filteredStudents;
+    _trainer;
+    super.dispose();
   }
 
   @override
@@ -61,14 +72,18 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                       child: CircleAvatar(
                         maxRadius: 50,
                         backgroundColor: const Color(0xffd50032),
-                        backgroundImage: student.imageRef != null ? NetworkImage(student.imageRef) : null,
-                        child: student.imageRef == null ? Text(
-                          '${student.user.firstName[0]}${student.user.lastName[0]}',
-                          style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ) : null,
+                        backgroundImage: student.imageRef != null
+                            ? NetworkImage(student.imageRef)
+                            : null,
+                        child: student.imageRef == null
+                            ? Text(
+                                '${student.user.firstName[0]}${student.user.lastName[0]}',
+                                style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              )
+                            : null,
                       ),
                     ),
                   ],
@@ -142,10 +157,8 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
         onFieldSubmitted: (val) {
           List<StudentModel> list = [];
           for (StudentModel student in _students) {
-            if (student.user.firstName
-                .contains(val) ||
-                student.user.lastName
-                    .contains(val) ||
+            if (student.user.firstName.contains(val) ||
+                student.user.lastName.contains(val) ||
                 student.user.email.split('@')[0].contains(val)) {
               list.add(student);
             }
@@ -165,7 +178,9 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                             .contains(_searchController.text) ||
                         student.user.lastName
                             .contains(_searchController.text) ||
-                        student.user.email.split('@')[0].contains(_searchController.text)) {
+                        student.user.email
+                            .split('@')[0]
+                            .contains(_searchController.text)) {
                       list.add(student);
                     }
                   }
@@ -228,21 +243,30 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                 children: [
                   _loadingUser != true
                       ? Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.white,
-                        backgroundImage: _trainer.imageRef != null ? NetworkImage(_trainer.imageRef) : null,
-                        child: _trainer.imageRef == null ? Text('${_trainer.user.firstName[0]}${_trainer.user.lastName[0]}', style: TextStyle(color: Color(0xffd50032), fontSize: 40, fontWeight: FontWeight.bold))
-                            : null,
-                      ),
-                      Text('${_trainer.user.firstName} ${_trainer.user.lastName[0]}', style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white
-                      ))
-                    ],
-                  )
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.white,
+                              backgroundImage: _trainer.imageRef != null
+                                  ? NetworkImage(_trainer.imageRef)
+                                  : null,
+                              child: _trainer.imageRef == null
+                                  ? Text(
+                                      '${_trainer.user.firstName[0]}${_trainer.user.lastName[0]}',
+                                      style: TextStyle(
+                                          color: Color(0xffd50032),
+                                          fontSize: 40,
+                                          fontWeight: FontWeight.bold))
+                                  : null,
+                            ),
+                            Text(
+                                '${_trainer.user.firstName} ${_trainer.user.lastName[0]}',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: Colors.white))
+                          ],
+                        )
                       : CircularProgressIndicator(),
                 ],
               ),
@@ -254,25 +278,22 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                     ListTile(
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Icon(Icons.home_filled),
-                          Text('Inicio')
-                        ],
+                        children: [Icon(Icons.home_filled), Text('Inicio')],
                       ),
                       onTap: () {
-                        Navigator.pushReplacementNamed(context, '/student_panel');
+                        Navigator.pushReplacementNamed(
+                            context, '/student_panel');
                       },
                     ),
                     ListTile(
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Icon(Icons.settings),
-                          Text('Configurações')
-                        ],
+                        children: [Icon(Icons.settings), Text('Configurações')],
                       ),
                       onTap: () {
-                        Navigator.pushReplacementNamed(context, '/trainer_config', arguments: _trainer);
+                        Navigator.pushReplacementNamed(
+                            context, '/trainer_config',
+                            arguments: _trainer);
                       },
                     ),
                   ],
@@ -280,13 +301,12 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                 ListTile(
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Icon(Icons.logout),
-                      Text('Sair')
-                    ],
+                    children: [Icon(Icons.logout), Text('Sair')],
                   ),
                   onTap: () async {
-                    Navigator.pushReplacementNamed(context, "/");
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/', (Route<dynamic> route) => false);
                   },
                 ),
               ],

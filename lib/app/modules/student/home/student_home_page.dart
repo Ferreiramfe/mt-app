@@ -36,13 +36,16 @@ class _StudentHomeState extends State<StudentHome> {
     });
     FirebaseAuth auth = FirebaseAuth.instance;
     _user = await auth.currentUser;
-    _uid = _user.uid;
-    await studentService.getStudentById(_uid).then((value) {
-      setState(() {
-        _student = value;
-        _loadingUser = false;
+    if (_user != null) {
+      _uid = _user.uid;
+      await studentService.getStudentById(_uid).then((value) {
+        setState(() {
+          _student = value;
+          _loadingUser = false;
+        });
       });
-    });
+
+    }
   }
 
   getPersonalTrainers() async {
@@ -187,7 +190,7 @@ class _StudentHomeState extends State<StudentHome> {
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
-                                  fontSize: 20)),
+                                  fontSize: 16)),
                           Center(child: Text('por mês'))
                         ],
                       ),
@@ -320,7 +323,7 @@ class _StudentHomeState extends State<StudentHome> {
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
-                                  fontSize: 20)),
+                                  fontSize: 16)),
                           Center(child: Text('por mês'))
                         ],
                       ),
@@ -392,6 +395,15 @@ class _StudentHomeState extends State<StudentHome> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _uid;
+    _trainers;
+    _filteredTrainers;
+    _student;
+    super.dispose();
   }
 
   @override
@@ -499,7 +511,9 @@ class _StudentHomeState extends State<StudentHome> {
                     ],
                   ),
                   onTap: () async {
-                    Navigator.pushReplacementNamed(context, "/");
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/', (Route<dynamic> route) => false);
                   },
                 ),
               ],
