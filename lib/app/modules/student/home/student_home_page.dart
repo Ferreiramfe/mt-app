@@ -487,7 +487,7 @@ class _StudentHomeState extends State<StudentHome> {
                       ],
                     ),
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, '/student_details', arguments: _student);
+                      Navigator.pushNamed(context, '/student_details', arguments: _student);
                     },
                   ),
                   ListTile(
@@ -498,7 +498,7 @@ class _StudentHomeState extends State<StudentHome> {
                       ],
                     ),
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, '/student_config', arguments: _student);
+                      Navigator.pushNamed(context, '/student_config', arguments: _student);
                     },
                   ),
                   ],

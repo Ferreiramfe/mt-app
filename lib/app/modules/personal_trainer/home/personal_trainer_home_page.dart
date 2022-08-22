@@ -282,7 +282,7 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                       ),
                       onTap: () {
                         Navigator.pushReplacementNamed(
-                            context, '/student_panel');
+                            context, '/personal_trainer_panel');
                       },
                     ),
                     ListTile(
@@ -291,7 +291,7 @@ class _PersonalTrainerHomePageState extends State<PersonalTrainerHomePage> {
                         children: [Icon(Icons.settings), Text('Configurações')],
                       ),
                       onTap: () {
-                        Navigator.pushReplacementNamed(
+                        Navigator.pushNamed(
                             context, '/trainer_config',
                             arguments: _trainer);
                       },
