@@ -10,16 +10,6 @@ class ExercisePlansServices {
       FirebaseFirestore.instance.collection(STUDENTS_COLLECTION);
 
   Future<void> createExercisePlan(String userId, ExercisePlansModel exercise) async {
-    List<ExercisePlansModel> exercisesList = await getExercises(userId);
-    int index = exercisesList.indexWhere((element) => element.day == exercise.day);
-    if (index != -1) {
-      ExercisePlansModel oldEx = exercisesList[index];
-      oldEx.status = 'INACTIVE';
-      await studentRef
-          .doc(userId)
-          .collection(EXERCISE_PLANS_COLLECTION)
-          .doc(oldEx.id).update(oldEx.toMap());
-    }
     exercise.createdAt = Timestamp.now();
     await studentRef
         .doc(userId)

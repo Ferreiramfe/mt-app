@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mt_app/app/modules/cross-profile/exercises/exercises_details_page.dart';
 import 'package:mt_app/app/modules/personal_trainer/home/personal_trainer_home_page.dart';
 import 'package:mt_app/app/modules/personal_trainer/trainer_details/pages/trainer_details_page.dart';
 import 'package:mt_app/app/modules/student/details/form/student_exercise_form_page.dart';
@@ -39,6 +40,10 @@ class MTRouter {
       case "/student_exercise_form" :
         return MaterialPageRoute(
             builder: (_) => StudentExerciseFormPage(student: args)
+        );
+      case "/exercise_details" :
+        return MaterialPageRoute(
+            builder: (_) => ExercisesDetailsPage(exercises: args)
         );
       default:
         _routeError();

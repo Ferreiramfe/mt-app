@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mt_app/app/sign_up/enum/user_type_enum.dart';
 
 class UserEntity {
   String _id;
-  String _name;
+  String _firstName;
+  String _lastName;
   String _email;
   String _password;
   String _type;
@@ -14,10 +14,11 @@ class UserEntity {
   Map<String, dynamic> toMap(){
 
     Map<String, dynamic> map = {
-      "name"        : this.name,
+      "firstName"        : this.firstName,
+      "lastName"        : this.lastName,
       "email"       : this.email,
       "type"        : this.type,
-      "timestamp"   : this._timestamp
+      "timestamp"   : this.timestamp
     };
     return map;
 
@@ -28,10 +29,10 @@ class UserEntity {
     _id = value;
   }
 
-  String get name => _name;
+  String get firstName => _firstName;
 
-  set name(String value) {
-    _name = value;
+  set firstName(String value) {
+    _firstName = value;
   }
 
   String get email => _email;
@@ -46,15 +47,21 @@ class UserEntity {
     _password = value;
   }
 
-  String get type => _type;
-
-  set type(String value) {
-    _type = value;
-  }
-
   Timestamp get timestamp => _timestamp;
 
   set timestamp(Timestamp value) {
     _timestamp = value;
+  }
+
+  String get lastName => _lastName;
+
+  set lastName(String value) {
+    _lastName = value;
+  }
+
+  String get type => _type;
+
+  set type(String value) {
+    _type = value;
   }
 }

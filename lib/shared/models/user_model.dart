@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserModel {
   String id;
   String email;
-  String name;
+  String firstName;
+  String lastName;
   String type;
   Timestamp createdAt;
   String status;
@@ -11,7 +12,8 @@ class UserModel {
   UserModel({
     this.id,
     this.email,
-    this.name,
+    this.firstName,
+    this.lastName,
     this.type,
     this.createdAt,
     this.status
@@ -22,7 +24,8 @@ class UserModel {
     return UserModel(
         id: doc.id,
         email: data['email'],
-        name: data['name'],
+        firstName: data['firstName'],
+        lastName: data['lastName'],
         type: data['type'],
         createdAt: data['createdAt'],
         status: data['status']);

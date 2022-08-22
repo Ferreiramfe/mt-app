@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:mt_app/app/sign_up/enum/user_type_enum.dart';
-import 'package:mt_app/app/sign_up/model/user_entity.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:mt_app/app/sign_up/model/user_entity.dart';
 import 'package:mt_app/app/sign_up/service/signup_service.dart';
+import 'package:mt_app/shared/util/constants.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key key}) : super(key: key);
@@ -13,80 +12,80 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  TextEditingController _controllerFirstName = TextEditingController();
+  TextEditingController _controllerLastName = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerPassword = TextEditingController();
+  String _selectedUserType;
 
-  TextEditingController _controllerName = TextEditingController(text: "Jamilton Damasceno");
-  TextEditingController _controllerEmail = TextEditingController(text: "jamilton@gmail.com");
-  TextEditingController _controllerPassword = TextEditingController(text: "1234567");
-  bool _userTypeFlag = false;
-  String _userType = 'STUDENT';
-  String _errorMessage = "";
-
-  _validateFields(){
-
-    //Recuperar dados dos campos
-    String name = _controllerName.text;
-    String email = _controllerEmail.text;
-    String password = _controllerPassword.text;
-
-    //validar campos
-    if( name.isNotEmpty ){
-
-      if( email.isNotEmpty && email.contains("@") ){
-
-        if( password.isNotEmpty && password.length > 6 ){
-
-          UserEntity user = UserEntity();
-          user.name = name;
-          user.email = email;
-          user.password = password;
-          user.type = _userType;
-
-          _signupUser(user);
-
-        }else{
-          setState(() {
-            _errorMessage = "Preencha a senha! digite mais de 6 caracteres";
-          });
-        }
-
-      }else{
-        setState(() {
-          _errorMessage = "Preencha o E-mail válido";
-        });
-      }
-
-    }else{
-      setState(() {
-        _errorMessage = "Preencha o Nome";
-      });
-    }
-  }
-
-  _signupUser( UserEntity user ){
+  _signupUser() {
     try {
-      SignUpService service = SignUpService();
-      service.signup(user);
+      if (_formKey.currentState.validate() && _controllerPassword.text.length > 6 && _selectedUserType != null) {
+        UserEntity user = UserEntity();
+        user.firstName = _controllerFirstName.text;
+        user.lastName = _controllerLastName.text;
+        user.email = _controllerEmail.text;
+        user.password = _controllerPassword.text;
+        user.type = _selectedUserType == 'ESTUDANTE' ? STUDENT_TYPE : PERSONAL_TRAINER_TYPE;
+        user.timestamp = Timestamp.now();
+        SignUpService service = SignUpService();
+        service.signUp(user);
 
-      switch( user.type ){
-        case 'PERSONAL_TRAINER':
-          Navigator.pushNamedAndRemoveUntil(
-              context,
-              "/personal_trainer_panel",
-                  (_) => false
-          );
-          break;
-        case 'STUDENT' :
-          Navigator.pushNamedAndRemoveUntil(
-              context,
-              "/student_panel",
-                  (_) => false
-          );
-          break;
+        switch (user.type) {
+          case PERSONAL_TRAINER_TYPE:
+            Navigator.pushNamedAndRemoveUntil(
+                context, "/personal_trainer_panel", (_) => false);
+            break;
+          case STUDENT_TYPE:
+            Navigator.pushNamedAndRemoveUntil(
+                context, "/student_panel", (_) => false);
+            break;
+        }
       }
-    } catch(e) {
-      _errorMessage = e.toString();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Não foi possível cadastrar o usuário'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
+
+  Widget _inputTextForm({
+    TextEditingController controller,
+    String hintText,
+    bool autoFocus,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        autofocus: autoFocus,
+        controller: controller,
+        keyboardType: TextInputType.text,
+        style: TextStyle(fontSize: 20),
+        decoration: InputDecoration(
+            contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+            hintText: hintText,
+            labelText: hintText,
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle: TextStyle(
+                color: Colors.black
+            ),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),)),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Campo obrigatório';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -94,101 +93,72 @@ class _SignupPageState extends State<SignupPage> {
       appBar: AppBar(
         title: Text("Cadastro"),
       ),
-      body: Container(
-        padding: EdgeInsets.all(16),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                TextField(
-                  controller: _controllerName,
-                  autofocus: true,
-                  keyboardType: TextInputType.text,
-                  style: TextStyle(fontSize: 20),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      hintText: "Nome completo",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6)
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16.0, top: 32.0, right: 32.0),
+          child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _inputTextForm(
+                      controller: _controllerFirstName,
+                      hintText: 'Primeiro Nome',
+                      autoFocus: true),
+                  _inputTextForm(
+                      controller: _controllerLastName,
+                      hintText: 'Último Nome',
+                      autoFocus: true),
+                  _inputTextForm(
+                      controller: _controllerEmail,
+                      hintText: 'E-Mail',
+                      autoFocus: true),
+                  _inputTextForm(
+                      controller: _controllerPassword,
+                      hintText: 'Senha',
+                      autoFocus: true),
+                  Padding(
+                      padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                      child: DropdownButtonFormField(
+                        hint: Text('Usuário'),
+                        value: _selectedUserType,
+                        icon: const Icon(Icons.arrow_downward),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedUserType = newValue;
+                          });
+                        },
+                        items: ['PERSONAL TRAINER', 'ESTUDANTE'].map((location) {
+                          return DropdownMenuItem(
+                            child: new Text(location),
+                            value: location,
+                          );
+                        }).toList(),
+                      )),
+                  Padding(
+                      padding: EdgeInsets.only(top: 16, bottom: 10),
+                      child: ElevatedButton(
+                          onPressed: () {
+                            _signupUser();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                            child: Text('Cadastrar', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(const Color(0xffd50032)),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: const Color(0xffd50032))
+                                  )
+                              )
+                          )
                       )
                   ),
-                ),
-                TextField(
-                  controller: _controllerEmail,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(fontSize: 20),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      hintText: "e-mail",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6)
-                      )
-                  ),
-                ),
-                TextField(
-                  controller: _controllerPassword,
-                  obscureText: true,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(fontSize: 20),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      hintText: "senha",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6)
-                      )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: <Widget>[
-                      Text("Estudante"),
-                      Switch(
-                          value: _userTypeFlag,
-                          onChanged: (bool value){
-                            setState(() {
-                              _userTypeFlag = value;
-                              _userType = !value ? 'STUDENT' : 'PERSONAL_TRAINER';
-                            });
-                          }
-                      ),
-                      Text("Personal Trainer"),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16, bottom: 10),
-                  child: RaisedButton(
-                      child: Text(
-                        "Cadastrar",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                      color: Color(0xff1ebbd8),
-                      padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      onPressed: (){
-                        _validateFields();
-                      }
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: Center(
-                    child: Text(
-                      _errorMessage,
-                      style: TextStyle(color: Colors.red, fontSize: 20),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
+                ],
+              )),
         ),
       ),
     );

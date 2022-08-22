@@ -31,7 +31,7 @@ class _TrainerDetailsPageState extends State<TrainerDetailsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(widget.user.name),
+                    Text(widget.user.firstName),
                     Text(widget.user.email)
                   ],
                 ),

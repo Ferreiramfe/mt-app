@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mt_app/shared/models/user_model.dart';
 
-import 'exercise_plans_model.dart';
 
 class StudentModel {
   String id;
