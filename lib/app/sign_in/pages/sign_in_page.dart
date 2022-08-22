@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mt_app/app/sign_in/service/signin_service.dart';
 import 'package:mt_app/app/sign_up/model/user_entity.dart';
+import 'package:mt_app/shared/util/constants.dart';
 import '../../../shared/models/user_model.dart';
 
 class SignInPage extends StatefulWidget {
@@ -17,43 +19,19 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
   bool _loading = false;
   SignInService service = SignInService();
 
-  _validarCampos() {
-    String email = _controllerEmail.text;
-    String password = _controllerPassword.text;
-
-    //validar campos
-    if (email.isNotEmpty && email.contains("@")) {
-      if (password.isNotEmpty && password.length > 6) {
-        UserEntity user = UserEntity();
-        user.email = email;
-        user.password = password;
-
-        _signUser( user );
-
-      } else {
-        setState(() {
-          _errorMessage = "Preencha a senha! digite mais de 6 caracteres";
-        });
-      }
-    } else {
-      setState(() {
-        _errorMessage = "Preencha o E-mail válido";
-      });
-    }
-  }
-
-  _signUser( UserEntity user ){
+  _signUser() {
     try {
-      setState(() {
-        _loading = true;
-      });
-      service.signUser(user)
-      .then((res) => {
-        if (res != null) {
-          _redirectByUserType(res)
-        }
-      });
-
+      if (_formKey.currentState.validate()) {
+        UserEntity user = UserEntity();
+        user.email = _controllerEmail.text;
+        user.password = _controllerPassword.text;
+        setState(() {
+          _loading = true;
+        });
+        service.signUser(user).then((res) => {
+              if (res != null) {_redirectByUserType(res)}
+            });
+      }
     } catch (error) {
       _errorMessage = error.toString();
     }
@@ -65,16 +43,49 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
       _loading = false;
     });
 
-    switch(userModel.type){
-      case 'STUDENT' :
+    switch (userModel.type) {
+      case STUDENT_TYPE:
         Navigator.pushReplacementNamed(context, "/student_panel");
         break;
-      case 'PERSONAL_TRAINER' :
+      case PERSONAL_TRAINER_TYPE:
         Navigator.pushReplacementNamed(context, "/personal_trainer_panel");
         break;
     }
-
   }
+
+  Widget _inputTextForm({
+    TextEditingController controller,
+    String hintText,
+    bool autoFocus,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        autofocus: autoFocus,
+        controller: controller,
+        keyboardType: TextInputType.text,
+        style: TextStyle(fontSize: 20),
+        decoration: InputDecoration(
+            contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+            hintText: hintText,
+            labelText: hintText,
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle: TextStyle(color: Colors.black),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+            )),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Campo obrigatório';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -84,81 +95,73 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
         padding: EdgeInsets.all(16),
         child: Center(
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 32),
-                  child: Center(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 16.0),
+                    child: Center(
+                        child: SvgPicture.asset('lib/shared/assets/logo.svg', color: const Color(0xffd50032))),
+                  ),
+                  _inputTextForm(
+                      controller: _controllerEmail,
+                      hintText: 'E-mail',
+                      autoFocus: true),
+                  _inputTextForm(
+                      controller: _controllerPassword,
+                      hintText: 'Senha',
+                      autoFocus: true),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16, bottom: 10),
+                    child: ElevatedButton(
+                        onPressed: () {
+                          _signUser();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                          child: Text('Entrar', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(const Color(0xffd50032)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: const Color(0xffd50032))
+                                )
+                            )
+                        )
+                    ),
+                  ),
+                  Center(
+                    child: GestureDetector(
                       child: Text(
-                    'MT',
-                    style: TextStyle(color: Colors.red, fontSize: 40),
-                  )),
-                ),
-                TextField(
-                  controller: _controllerEmail,
-                  autofocus: true,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(fontSize: 20),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      hintText: "e-mail",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6))),
-                ),
-                TextField(
-                  controller: _controllerPassword,
-                  obscureText: true,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(fontSize: 20),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      hintText: "senha",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6))),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16, bottom: 10),
-                  child: ElevatedButton(
-                      child: Text(
-                        "Entrar",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        "Não tem conta? cadastre-se!",
+                        style: TextStyle(color: Colors.black),
                       ),
-                      style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
-                      onPressed: () {
-                        _validarCampos();
-                      }),
-                ),
-                Center(
-                  child: GestureDetector(
-                    child: Text(
-                      "Não tem conta? cadastre-se!",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    onTap: () {
-                      Navigator.pushNamed(context, "/signup");
-                    },
-                  ),
-                ),
-                _loading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                            backgroundColor: Colors.white))
-                    : Container(),
-                Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: Center(
-                    child: Text(
-                      _errorMessage,
-                      style: TextStyle(color: Colors.red, fontSize: 20),
+                      onTap: () {
+                        Navigator.pushNamed(context, "/signup");
+                      },
                     ),
                   ),
-                )
-              ],
+                  _loading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                              backgroundColor: Colors.white))
+                      : Container(),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Center(
+                      child: Text(
+                        _errorMessage,
+                        style: TextStyle(color: Colors.red, fontSize: 20),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

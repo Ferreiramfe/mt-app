@@ -7,26 +7,59 @@ import '../util/constants.dart';
 class StudentService {
   StudentService();
 
-  CollectionReference studentsRef = FirebaseFirestore.instance.collection(STUDENTS_COLLECTION);
+  CollectionReference studentsRef =
+      FirebaseFirestore.instance.collection(STUDENTS_COLLECTION);
 
   Future<void> contractPersnal(StudentModel studentModel) async {
-    studentModel.userRef = '$USERS_COLLECTION/${studentModel.id}';
-    await studentsRef.add(studentModel.toMap());
+    await studentsRef
+        .doc(studentModel.id)
+        .update({'trainerId': studentModel.trainerId});
   }
 
   Future<List<StudentModel>> getStudentsFromTrainerId(String trainerId) async {
-    var query = await studentsRef
-        .where('trainerId', isEqualTo: trainerId)
-        .get();
+    var query =
+        await studentsRef.where('trainerId', isEqualTo: trainerId).get();
     List<StudentModel> list = [];
-    
+
     for (var doc in query.docs) {
       Map data = doc.data();
-      DocumentReference ref = FirebaseFirestore.instance
-          .doc(data['userRef']);
+      DocumentReference ref = FirebaseFirestore.instance.doc(data['userRef']);
       UserModel user = UserModel.fromFirestore(await ref.get());
       StudentModel student = StudentModel.fromFirestore(doc, user);
       list.add(student);
+    }
+    return list;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> streamStudents(String trainerId) {
+    return studentsRef
+        .where('status', isEqualTo: STATUS_ACTIVE)
+        .where('trainerId', isEqualTo: trainerId)
+        .snapshots();
+  }
+
+  Future<StudentModel> getStudentById(String userId) async {
+    var query = await studentsRef
+        .where('userRef', isEqualTo: 'users/$userId')
+        .limit(1)
+        .get();
+    StudentModel student;
+
+    for (var doc in query.docs) {
+      student = StudentModel.fromFirestore(doc, UserModel());
+    }
+    return student;
+  }
+
+  Future<List<StudentModel>> studentModels(var docs) async {
+    List<StudentModel> list = [];
+    for (var doc in docs) {
+      Map data = doc.data();
+      DocumentReference ref = await FirebaseFirestore.instance
+          .doc(data['userRef']);
+      UserModel user = UserModel.fromFirestore(await ref.get());
+      StudentModel studentModel = StudentModel.fromFirestore(doc, user);
+      list.add(studentModel);
     }
     return list;
   }

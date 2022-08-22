@@ -1,3 +1,9 @@
 const USERS_COLLECTION = 'users';
 const EXERCISE_PLANS_COLLECTION = 'exercise-plans';
 const STUDENTS_COLLECTION = 'students';
+const PERSONAL_TRAINERS_COLLECTION = 'personal-trainers';
+
+const STUDENT_TYPE = 'STUDENT';
+const PERSONAL_TRAINER_TYPE = 'PERSONAL-TRAINER';
+
+const STATUS_ACTIVE = 'ACTIVE';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mt_app/shared/models/exercise_model.dart';
 import 'package:mt_app/shared/models/exercise_plans_model.dart';
 import 'package:mt_app/shared/models/students_model.dart';
 import 'package:flutter/services.dart';
@@ -14,17 +15,10 @@ class StudentExerciseFormPage extends StatefulWidget {
 }
 
 class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
-  final TextEditingController _controllerName = TextEditingController();
-  final TextEditingController _controllerTargetMuscle = TextEditingController();
-  final TextEditingController _controllerSeries = TextEditingController();
-  final TextEditingController _controllerFrequency = TextEditingController();
-  final TextEditingController _controllerCadence = TextEditingController();
-  final TextEditingController _controllerRestTime = TextEditingController();
-
   int _count;
-
+  bool enable = true;
   List<Map<String, dynamic>> _values;
-
+  bool _enableFloatingActionBtn = false;
   final List _exercisesTypes = [
     'Hipertrofia muscular',
     'Potência muscular',
@@ -45,6 +39,15 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
     'Domingo'
   ];
 
+  final Map<String, dynamic> _keys = {
+      "name": '',
+      "targetMuscle": '',
+      "series": '',
+      "frequency": '',
+      "cadence": '',
+      "restTime": '',
+  };
+
   String _selectedExerciseType;
   String _selectedExerciseRegion;
   String _selectedDayOfWeek;
@@ -58,19 +61,26 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Processing Data')),
         );
-        ExercisePlansModel exercise = ExercisePlansModel(
+        List<ExerciseModel> list = [];
+        for (var value in _values) {
+          ExerciseModel exercise = ExerciseModel(
+            name: value['name'],
+            targetMuscle: value['targetMuscle'],
+            series: int.parse(value['series']),
+            frequency: int.parse(value['frequency']),
+            cadence: int.parse(value['cadence']),
+            restTime: int.parse(value['restTime'])
+          );
+          list.add(exercise);
+        }
+        ExercisePlansModel exercisePlansModel = ExercisePlansModel(
             type: _selectedExerciseType,
             exerciseRegion: _selectedExerciseRegion,
             day: _selectedDayOfWeek,
-            name: _controllerName.text,
-            targetMuscle: _controllerTargetMuscle.text,
-            series: int.parse(_controllerSeries.text),
-            frequency: int.parse(_controllerFrequency.text),
-            cadence: int.parse(_controllerCadence.text),
-            restTime: int.parse(_controllerRestTime.text),
+            exercises: list,
             status: 'ACTIVE'
         );
-        exerciseServices.createExercisePlan(widget.student.id, exercise).then((value) {
+        exerciseServices.createExercisePlan(widget.student.id, exercisePlansModel).then((value) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('SUCCESS')),
           );
@@ -78,22 +88,184 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
         });
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Processing Data')),
+          const SnackBar(content: Text('Ocorreu um Erro')),
         );
       }
     }
   }
 
+  _validateForm() {
+    var data = _values[_count-1];
+    if (data['name'] != '' && data['targetMuscle'] != ''
+        && data['series'] != '' && data['frequency'] != ''
+        && data['cadence'] != '' && data['restTime'] != '') {
+      setState(() {
+        _enableFloatingActionBtn = true;
+      });
+    }
+  }
+
+  Widget _dynamicForm({
+    int index
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+        _count == index + 1
+        ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Exercício ${index + 1}',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold
+                    )),
+                Row(
+                  children: [
+                    IconButton(onPressed: () {
+                      setState(() {
+                        enable = !enable;
+                      });
+                    }, icon: Icon(enable == false ? Icons.arrow_downward : Icons.close), color: const Color(0xffd50032)),
+                    IconButton(onPressed: () {
+                      setState(() {
+                        if (_count > 1) {
+                          _values.removeAt(index);
+                          _count--;
+                        }
+                      });
+                    }, icon: Icon(Icons.delete_forever), color: const Color(0xffd50032)),
+                  ],
+                )
+              ],
+            ),
+            enable == true
+            ? Column(
+              children: [
+                _inputTextForm(
+                    hintText: 'Exercício',
+                    autoFocus: false,
+                    index: index,
+                    key: 'name'
+                ),
+              _inputTextForm(
+                  hintText: 'Músculo Alvo',
+                  autoFocus: false,
+                  index: index,
+                  key: 'targetMuscle' ),
+              _inputNumberForm(
+                  hintText: 'Séries',
+                  autoFocus: false,
+                  index: index,
+                  key: 'series' ),
+              _inputNumberForm(
+                  hintText: 'Repetições ',
+                  autoFocus: false,
+                  index: index,
+                  key: 'frequency' ),
+              _inputNumberForm(
+                  hintText: 'Cadência em segundos',
+                  autoFocus: false,
+                  index: index,
+                  key: 'cadence'),
+              _inputNumberForm(
+                  hintText: 'Descanso em segundos',
+                  autoFocus: false,
+                  index: index,
+                  key: 'restTime'
+              )
+              ],
+            ) : Center(),
+          ],
+        )
+        : Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16.0, bottom: 16.0, left: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Nome do Treino: ${_values[index]['name']}',
+                                  style: TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w800)),
+                              Text('Músculo alvo: ${_values[index]['targetMuscle']}',
+                                  style: TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w800)),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Row(
+                                  children: [
+                                    Text('Sér/Rep: '),
+                                    Text(
+                                        '${_values[index]['series']}/${_values[index]['frequency']}'),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text('Cadência: '),
+                                  Text(_values[index]['cadence']),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Cadência: '),
+                                  Text(_values[index]['restTime']),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+            IconButton(onPressed: () {
+              setState(() {
+                if (_count > 1) {
+                  _values.removeAt(index);
+                  _count--;
+                }
+              });
+            }, icon: Icon(Icons.delete_forever), color: const Color(0xffd50032), iconSize: 46)
+          ],
+        ),
+      ),
+    );
+  }
+
+  _onUpdate(int index, String val, String key) {
+    var value = _values[index];
+    value[key] = val;
+    _validateForm();
+  }
+
   Widget _inputNumberForm(
-      {TextEditingController editingController,
-        String hintText,
-        bool autoFocus}) {
+      {String hintText,
+        bool autoFocus,
+        int index,
+        String key
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        controller: editingController,
         autofocus: autoFocus,
         keyboardType: TextInputType.text,
+        onChanged: (val) {
+          _onUpdate(index, val, key);
+        },
         style: TextStyle(fontSize: 20),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -115,19 +287,20 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
       ),
     );
   }
-  Widget _formField(int index) {
-    return TextFormField();
-  }
 
   Widget _inputTextForm(
-      {TextEditingController editingController,
-      String hintText,
-      bool autoFocus}) {
+      { String hintText,
+        bool autoFocus,
+        int index,
+        String key
+      }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        controller: editingController,
         autofocus: autoFocus,
+        onChanged: (val) {
+          _onUpdate(index, val, key);
+        },
         keyboardType: TextInputType.text,
         style: TextStyle(fontSize: 20),
         decoration: InputDecoration(
@@ -146,25 +319,50 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
       ),
     );
   }
+
   @override
   void initState() {
     super.initState();
-    _count = 0;
-    _values = [];
+    _count = 1;
+    _values = [_keys];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Criar Treino')),
+      appBar: AppBar(
+        title: Text('Criar Treino'),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              textStyle: const TextStyle(fontSize: 20, color: Colors.white),
+            ),
+            onPressed: () {
+              _submit();
+            },
+            child: const Text('Salvar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          setState(() {
-            _count++;
-          });
+          if (_enableFloatingActionBtn) {
+            setState(() {
+              _enableFloatingActionBtn = false;
+              _count++;
+              _values = [..._values, {
+                "name": '',
+                "targetMuscle": '',
+                "series": '',
+                "frequency": '',
+                "cadence": '',
+                "restTime": '',
+              }];
+            });
+          }
         },
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.navigation),
+        backgroundColor: _enableFloatingActionBtn ? const Color(0xffd50032) : Colors.black26,
+        child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -233,37 +431,20 @@ class _StudentExerciseFormPageState extends State<StudentExerciseFormPage> {
               ),
               Expanded(
                 child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: 0,
+                  itemCount: _count,
                   itemBuilder: (context, index) {
-                    return _formField(index);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: _dynamicForm(index: index),
+                        ),
+                      ],
+                    );
                   },
                 ),
               ),
-              // _inputTextForm(
-              //     editingController: _controllerName,
-              //     hintText: 'Nome do Treino',
-              //     autoFocus: true),
-              // _inputTextForm(
-              //     editingController: _controllerTargetMuscle,
-              //     hintText: 'Músculo Alvo',
-              //     autoFocus: true),
-              // _inputNumberForm(
-              //     editingController: _controllerSeries,
-              //     hintText: 'Séries em segundos',
-              //     autoFocus: true),
-              // _inputNumberForm(
-              //     editingController: _controllerFrequency,
-              //     hintText: 'Repetições em segundos',
-              //     autoFocus: true),
-              // _inputNumberForm(
-              //     editingController: _controllerCadence,
-              //     hintText: 'Cadência em segundos',
-              //     autoFocus: true),
-              // _inputNumberForm(
-              //     editingController: _controllerRestTime,
-              //     hintText: 'Descanso em segundos',
-              //     autoFocus: true),
             ],
           ),
         ),

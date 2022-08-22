@@ -10,19 +10,26 @@ class SignUpService {
   CollectionReference usersRef =
       FirebaseFirestore.instance.collection(USERS_COLLECTION);
 
-  Future<void> signup(UserEntity user) {
+  Future<void> signUp(UserEntity user) {
     try {
       auth
           .createUserWithEmailAndPassword(
-          email: user.email, password: user.password)
+              email: user.email, password: user.password)
           .then((firebaseUser) {
-        usersRef
-            .doc(firebaseUser.user.uid)
-            .set(user.toMap());
+        usersRef.doc(firebaseUser.user.uid).set(user.toMap());
+
+        CollectionReference ref = FirebaseFirestore.instance.collection(
+            user.type == STUDENT_TYPE ? STUDENTS_COLLECTION : PERSONAL_TRAINERS_COLLECTION);
+        String id = ref.doc().id;
+        ref.doc(id).set({
+          'id': id,
+          'userRef': '${usersRef.path}/${firebaseUser.user.uid}',
+          'status': STATUS_ACTIVE,
+          'createdAt': Timestamp.now()
+        });
       });
     } catch (error) {
-      throw Exception(error);
+      rethrow;
     }
-
   }
 }
